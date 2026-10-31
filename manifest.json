@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "お会計アシスト",
+  "short_name": "お会計アシスト",
+  "description": "お会計金額から、キリのよい現金支払額とお釣りを計算するアプリです。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f8f5",
+  "theme_color": "#16845b",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

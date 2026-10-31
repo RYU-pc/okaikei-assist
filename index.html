@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16845b">
+  <meta name="description" content="お会計の端数調整とお釣りの計算ができるシンプルなアプリ">
+  <title>お会計アシスト</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">￥</div>
+      <div>
+        <h1>お会計アシスト</h1>
+        <p>かんたん端数調整・お釣り計算</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="helpButton" class="icon-button" aria-label="使い方">?</button>
+      <button id="settingsButton" class="icon-button" aria-label="設定">⚙</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="mode-tabs" aria-label="計算モード">
+      <button class="mode-tab active" data-mode="adjust">端数を調整</button>
+      <button class="mode-tab" data-mode="reverse">お釣りを逆算</button>
+    </nav>
+
+    <!-- 端数調整 -->
+    <section id="adjustSection" class="mode-section">
+      <div class="section-heading">
+        <h2>お会計金額を入力</h2>
+        <p>レジに表示された金額を入力してください。</p>
+      </div>
+
+      <div class="input-card">
+        <label for="invoiceAmount">お会計金額</label>
+        <div class="amount-input-wrap">
+          <span>￥</span>
+          <input
+            id="invoiceAmount"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="例：1983"
+          >
+        </div>
+
+        <div class="adjust-options">
+          <h3>端数調整の設定</h3>
+          <div class="adjust-option-grid">
+            <div>
+              <label for="unitSelect">調整する単位</label>
+              <select id="unitSelect">
+                <option value="10">10円単位</option>
+                <option value="50">50円単位</option>
+                <option value="100" selected>100円単位</option>
+                <option value="500">500円単位</option>
+                <option value="1000">1,000円単位</option>
+              </select>
+            </div>
+            <div>
+              <label for="methodSelect">調整方法</label>
+              <select id="methodSelect">
+                <option value="up">切り上げ</option>
+                <option value="nearest" selected>四捨五入</option>
+                <option value="down">切り下げ</option>
+              </select>
+            </div>
+          </div>
+          <p id="methodExampleInline" class="adjust-option-hint"></p>
+        </div>
+
+        <div class="quick-buttons">
+          <button type="button" class="quick-button" data-add="100">＋100円</button>
+          <button type="button" class="quick-button" data-add="500">＋500円</button>
+          <button type="button" class="quick-button" data-add="1000">＋1,000円</button>
+        </div>
+
+        <div class="keypad" aria-label="数字入力">
+          <button type="button" data-key="1">1</button>
+          <button type="button" data-key="2">2</button>
+          <button type="button" data-key="3">3</button>
+          <button type="button" data-key="4">4</button>
+          <button type="button" data-key="5">5</button>
+          <button type="button" data-key="6">6</button>
+          <button type="button" data-key="7">7</button>
+          <button type="button" data-key="8">8</button>
+          <button type="button" data-key="9">9</button>
+          <button type="button" data-key="clear" class="key-secondary">C</button>
+          <button type="button" data-key="0">0</button>
+          <button type="button" data-key="backspace" class="key-secondary">⌫</button>
+        </div>
+
+        <button id="calculateAdjust" class="primary-button" type="button">
+          端数を調整する
+        </button>
+      </div>
+
+      <div id="adjustResult" class="result-card" hidden>
+        <div class="result-top">
+          <span class="result-label">おすすめのお支払い金額</span>
+          <strong id="adjustedAmount" class="main-result">￥0</strong>
+        </div>
+
+        <div class="result-details">
+          <div>
+            <span>元のお会計金額</span>
+            <strong id="originalAmount">￥0</strong>
+          </div>
+          <div>
+            <span>お釣り</span>
+            <strong id="adjustChange">￥0</strong>
+          </div>
+        </div>
+
+        <p id="adjustNote" class="result-note"></p>
+
+        <button id="copyAdjust" class="secondary-button" type="button">
+          結果をコピー
+        </button>
+      </div>
+    </section>
+
+    <!-- お釣り逆算 -->
+    <section id="reverseSection" class="mode-section" hidden>
+      <div class="section-heading">
+        <h2>お釣りを逆算</h2>
+        <p>お会計金額と、実際に渡す金額を入力してください。</p>
+      </div>
+
+      <div class="input-card">
+        <label for="reverseInvoice">お会計金額</label>
+        <div class="amount-input-wrap">
+          <span>￥</span>
+          <input
+            id="reverseInvoice"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="例：1983"
+          >
+        </div>
+
+        <label for="tenderAmount" class="second-label">渡す金額</label>
+        <div class="amount-input-wrap">
+          <span>￥</span>
+          <input
+            id="tenderAmount"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="例：2000"
+          >
+        </div>
+
+        <button id="calculateReverse" class="primary-button" type="button">
+          お釣りを計算する
+        </button>
+      </div>
+
+      <div id="reverseResult" class="result-card" hidden>
+        <div class="result-top">
+          <span id="reverseResultLabel" class="result-label">お釣り</span>
+          <strong id="reverseResultAmount" class="main-result">￥0</strong>
+        </div>
+
+        <div class="result-details">
+          <div>
+            <span>お会計金額</span>
+            <strong id="reverseInvoiceText">￥0</strong>
+          </div>
+          <div>
+            <span>渡す金額</span>
+            <strong id="reverseTenderText">￥0</strong>
+          </div>
+        </div>
+
+        <p id="reverseNote" class="result-note"></p>
+
+        <button id="copyReverse" class="secondary-button" type="button">
+          結果をコピー
+        </button>
+      </div>
+    </section>
+
+    <!-- 履歴 -->
+    <section class="history-section">
+      <div class="history-heading">
+        <div>
+          <h2>計算履歴</h2>
+          <p>この端末・ブラウザ内に最大30件保存します。</p>
+        </div>
+        <button id="clearHistory" class="text-button" type="button">すべて削除</button>
+      </div>
+
+      <div id="historyList" class="history-list">
+        <p class="empty-history">まだ履歴はありません。</p>
+      </div>
+    </section>
+
+    <p class="privacy-note">
+      ※このアプリは計算補助用です。実際のお支払い金額はレジの表示を確認してください。
+    </p>
+  </main>
+
+  <!-- 設定 -->
+  <dialog id="settingsDialog" class="app-dialog">
+    <div class="dialog-header">
+      <h2>設定</h2>
+      <button id="closeSettings" class="icon-button" aria-label="閉じる">×</button>
+    </div>
+
+    <div class="dialog-content">
+      <div class="setting-toggle">
+        <span>ダークモード</span>
+        <input id="darkModeToggle" type="checkbox">
+      </div>
+
+      <div class="setting-toggle">
+        <span>計算完了音</span>
+        <input id="soundToggle" type="checkbox">
+      </div>
+
+      <div class="setting-toggle">
+        <span>振動</span>
+        <input id="vibrationToggle" type="checkbox">
+      </div>
+
+      <p class="small-note">設定はこの端末のブラウザ内に保存されます。</p>
+    </div>
+  </dialog>
+
+  <!-- 使い方 -->
+  <dialog id="helpDialog" class="app-dialog">
+    <div class="dialog-header">
+      <h2>使い方</h2>
+      <button id="closeHelp" class="icon-button" aria-label="閉じる">×</button>
+    </div>
+
+    <div class="dialog-content help-content">
+      <h3>① 端数を調整する</h3>
+      <ol>
+        <li>「端数を調整」を選びます。</li>
+        <li>レジのお会計金額を入力します。</li>
+        <li>入力画面で「調整する単位」と「調整方法」を選びます。</li>
+        <li>必要なら＋100円などのボタンで金額を追加します。</li>
+        <li>「端数を調整する」を押します。</li>
+        <li>おすすめの支払い金額とお釣りを確認します。</li>
+      </ol>
+
+      <h3>② お釣りを逆算する</h3>
+      <ol>
+        <li>「お釣りを逆算」を選びます。</li>
+        <li>お会計金額を入力します。</li>
+        <li>実際に渡す金額を入力します。</li>
+        <li>「お釣りを計算する」を押します。</li>
+      </ol>
+
+      <h3>③ 調整方法の違い</h3>
+      <p>例えば、1,983円を100円単位で調整する場合：</p>
+      <ul>
+        <li>切り上げ：2,000円（お釣り17円）</li>
+        <li>四捨五入：2,000円（お釣り17円）</li>
+        <li>切り下げ：本来は1,900円ですが、お会計金額より少ないため、実際の支払い額は1,983円になります。</li>
+      </ul>
+
+      <h3>④ スマートフォンで使う</h3>
+      <p><strong>iPhoneの場合</strong></p>
+      <ol>
+        <li>Safariで公開したアプリのURLを開きます。</li>
+        <li>画面下部の共有ボタンを押します。</li>
+        <li>「ホーム画面に追加」を選びます。</li>
+        <li>「追加」を押します。</li>
+      </ol>
+
+      <p><strong>Androidの場合</strong></p>
+      <ol>
+        <li>Chromeで公開したアプリのURLを開きます。</li>
+        <li>右上の「︙」を押します。</li>
+        <li>「アプリをインストール」または「ホーム画面に追加」を選びます。</li>
+      </ol>
+
+      <p class="small-warning">
+        履歴や設定は端末・ブラウザごとに保存されます。別の端末には自動で引き継がれません。ブラウザのデータを消去すると履歴や設定が消える場合があります。
+      </p>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
